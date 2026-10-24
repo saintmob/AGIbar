@@ -1,0 +1,5 @@
+/*
+  Cache-Control: no-store
+  X-Content-Type-Options: nosniff
+  Referrer-Policy: no-referrer
+  Content-Security-Policy: default-src 'self'; script-src 'self'; style-src 'self'; media-src 'self' blob: data:; connect-src 'self' https://token.agi.bar; frame-ancestors 'none'; base-uri 'none'; form-action 'self'

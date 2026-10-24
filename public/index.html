@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="zh-CN">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>H3 Studio · AGIbar</title><link rel="stylesheet" href="/style.css"><script type="module" src="/app.js"></script></head>
+<body>
+  <header class="topbar"><a class="brand" href="/"><span class="brand-icon">a</span>AGIbar <span class="slash">/</span> <span class="muted">Playground</span></a><span class="local-badge"><i></i>LOCAL WORKSPACE</span></header>
+  <main>
+    <div class="heading"><div><div class="eyebrow">MINIMAX · H3</div><h1>从一个想法，到一段声画。</h1><p>配置、运行、检查。为 H3 同步视频接口准备的 curl 工作台。</p></div><div class="version">VIDEO + AUDIO<span>TEXT TO VIDEO · SYNC API</span></div></div>
+    <div class="workspace">
+      <section class="controls panel">
+        <div class="panel-title"><h2>生成配置</h2><button type="button" id="reset" class="text-button">恢复示例</button></div>
+        <form id="form">
+          <label>Endpoint <input name="endpoint" type="url" required spellcheck="false" autocomplete="off"></label>
+          <div class="hint">使用完整的 <code>/videos/sync</code> 地址，非通用 /v1 Base URL。</div>
+          <label>API key<div class="key-row"><input name="apiKey" type="password" required placeholder="输入你的 API key" autocomplete="off" spellcheck="false"><button id="show-key" type="button" aria-label="显示 API key" aria-pressed="false">显示</button><button id="forget-key" type="button" aria-label="清除浏览器中保存的 API key">清除</button></div></label>
+          <div class="hint">已预填店内 Key，并保存在此浏览器的 localStorage；不会发送到项目文件或本地诊断文件。</div>
+          <div class="divider"></div>
+          <div class="label-row"><label for="prompt">提示词</label><span id="prompt-count">0 / 20,000</span></div>
+          <textarea id="prompt" name="prompt" maxlength="20000" required rows="5"></textarea>
+          <div class="presets"><span>试一试</span><button type="button" data-prompt="A cinematic paper boat crosses a rain puddle while rainfall and distant city ambience remain synchronized.">雨中的纸船</button><button type="button" data-prompt="A close-up of ocean waves washing over smooth stones at sunset, with synchronized waves and seabird sounds.">海边日落</button></div>
+          <div class="divider"></div>
+          <div class="label-row"><h3>画面与声音</h3><span class="tag">t2va</span></div>
+          <label>画面比例<div class="ratio-group" role="group" aria-label="画面比例"><button type="button" data-ratio="16:9" data-width="1024" data-height="576" class="active">▭ 16:9</button><button type="button" data-ratio="9:16" data-width="576" data-height="1024">▯ 9:16</button><button type="button" data-ratio="1:1" data-width="768" data-height="768">□ 1:1</button></div></label>
+          <div class="grid three"><label>宽度<input name="width" type="number" min="64" max="4096" step="1" required></label><label>高度<input name="height" type="number" min="64" max="4096" step="1" required></label><label>宽高比<input name="aspect_ratio" required pattern="[0-9]{1,3}:[0-9]{1,3}"></label></div>
+          <div class="grid three"><label>时长 / 秒<input name="duration" type="number" min="0.1" max="60" step="0.1" required></label><label>帧率 / FPS<input name="fps" type="number" min="1" max="120" step="1" required></label><label>随机种子<input name="seed" type="number" min="-1" max="2147483647" step="1" required></label></div>
+          <details><summary>高级参数 <span>采样、偏移与扩展 JSON</span></summary><div class="grid two"><label>采样步数<input name="num_inference_steps" type="number" min="1" max="200" required></label><label>Flow shift<input name="flow_shift" type="number" min="0" max="100" step="any" required></label></div><label>extra_params <textarea name="extra_params" rows="6" spellcheck="false" required></textarea></label><p class="hint">完整 JSON 将原样发送；时长输入会同步更新其中的 duration。范围为本地保护限制，不代表服务端能力承诺。</p></details>
+          <div id="form-error" class="form-error" role="alert" hidden></div>
+          <div class="run-row"><button id="run" type="submit" class="primary">✦ 生成视频 <span>运行 curl →</span></button><button id="cancel" type="button" class="secondary" hidden>取消</button></div>
+          <p class="cost-note">请求将发送到上方 endpoint，并可能产生服务端费用。</p>
+        </form>
+      </section>
+      <div class="results">
+        <section class="panel job-history" aria-labelledby="history-title">
+          <div class="panel-title"><h2 id="history-title">H3 队列与历史</h2><span class="tag">最新在前</span></div>
+          <p class="hint">刷新后自动恢复生成状态；一次只运行一个任务。运行期间请先等待或取消，再查看其他结果。</p>
+          <p id="history-empty" class="history-empty">当前服务暂无任务。</p>
+          <p id="history-error" class="form-error" role="status" hidden></p>
+          <div id="job-list" class="job-list" aria-label="H3 历史任务"></div>
+          <p class="hint history-limit">仅保留当前本地服务进程的任务；任务创建满 1 小时后清理（运行中不清理）。重启服务后历史和临时视频无法恢复，请及时下载。</p>
+        </section>
+        <section class="panel k3-monitor" aria-labelledby="k3-title">
+          <div class="panel-title"><h2 id="k3-title">Kimi K3.1 Pro 可用性监测</h2><span class="tag">k3.1-pro</span></div>
+          <label>通用 Base URL<input id="k3-base" type="url" value="https://token.agi.bar/v1" spellcheck="false" autocomplete="off"></label>
+          <p class="hint">复用左侧 API key（含此浏览器已保存的值）。开始后立即探测，随后每 5 分钟一次；每次最多输出 1 token，可能消耗额度。</p>
+          <div class="monitor-actions"><button id="k3-start" type="button" class="primary">开始监测并允许通知</button><button id="k3-check" type="button" class="secondary">立即检测</button><button id="k3-stop" type="button" class="secondary" hidden>停止监测</button></div>
+          <p id="k3-status" role="status" aria-live="polite">尚未开始监测。</p>
+          <p id="k3-notification" class="hint">首次点击会请求浏览器通知权限；恢复可用时通知一次并停止。拒绝权限时仍会在此页面提示。</p>
+          <p class="hint monitor-limit">保持此页面与本地服务开启；关闭或刷新页面即停止，后台标签页可能延迟探测，系统勿扰与浏览器设置可能屏蔽通知。</p>
+        </section>
+        <section class="preview panel"><div class="panel-title"><h2>生成结果</h2><span id="status" class="status">等待运行</span></div><div id="empty" class="empty-state"><div class="scene"><div class="sun"></div><div class="mountain back"></div><div class="mountain front"></div><div class="play">▷</div><span>H3</span></div><h3>让画面开始流动</h3><p>填入 API key，调整提示词，然后生成第一段视频。<br>运行时可以随时查看请求与响应。</p><div class="empty-specs"><span>MP4 OUTPUT</span><span>SYNC AUDIO</span><span>CURL POWERED</span></div></div><div id="video-result" hidden><video id="video" controls playsinline preload="metadata"></video><a id="download" class="download" download="h3-video.mp4">↓ 下载 MP4</a></div><div id="progress" class="progress" hidden><span class="spinner"></span><div><strong>生成请求已发送</strong><p id="elapsed">等待服务端响应 · 0 秒</p><p class="hint">同步接口可能需要数分钟；本地超时为 20 分钟。</p></div></div><div id="result-message" class="result-message" role="status" hidden></div><div id="metrics" class="metrics" hidden></div></section>
+        <section class="panel console"><div class="console-tabs" role="tablist" aria-label="请求与响应"><button id="request-tab" role="tab" aria-selected="true" aria-controls="request-pane" class="active">curl 请求</button><button id="response-tab" role="tab" aria-selected="false" aria-controls="response-pane">响应详情</button><button id="copy" type="button" class="copy">复制命令</button></div><div id="request-pane" role="tabpanel" aria-labelledby="request-tab"><div class="code-note"><span class="dot"></span> 密钥使用环境变量占位，不包含真实 API key。</div><pre id="command">填写 API key 后，可在这里预览完整命令。</pre><div class="console-footer">终端执行前请设置 H3_API_KEY · 使用 --fail-with-body 保留错误响应</div></div><div id="response-pane" role="tabpanel" aria-labelledby="response-tab" hidden><pre id="response">尚无响应。运行后显示 HTTP 状态、curl 错误、响应头和非视频响应体。</pre></div></section>
+        <div class="workspace-note"><span>⌁</span><p>浏览器 → 本地 Node 服务 → curl → H3<br><span>刷新网页会恢复 H3 队列；关闭本地服务后临时结果无法恢复。</span></p></div>
+      </div>
+    </div>
+  </main><footer>AGIbar / H3 STUDIO <span>在本地探索，把想法变成作品。</span></footer>
+</body></html>

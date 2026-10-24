@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>AGIbar · Playground</title><link rel="stylesheet" href="/style.css"><script type="module" src="/app.js"></script></head><body>
+<header><a href="/" aria-label="AGIBAR Playground"><b>AGI</b><span>AGIBAR <i>/ PLAYGROUND</i></span></a><div class="header-actions"><button id="theme-toggle" aria-label="切换明暗主题">◐ 主题</button><button id="open-config">接入配置</button></div></header>
+
+<main><div class="intro"><small>AGIBAR · MODEL ACCESS</small><h1>模型服务工作台</h1><p>健康检查、接入与试用。仅限店内网络，数据只保存在此浏览器。</p></div>
+<nav role="tablist" aria-label="模型页签"><button id="tab-minimax" role="tab" aria-selected="true" aria-controls="minimax" class="active">MINIMAX <span>H3 · 视频</span></button><button id="tab-kimi" role="tab" aria-selected="false" aria-controls="kimi">KIMI <span>K3.1 Pro · 对话</span></button></nav>
+
+<section id="minimax" role="tabpanel" aria-labelledby="tab-minimax">
+<div class="quickstart" aria-label="MiniMax H3 快速开始">
+<section class="panel health" aria-labelledby="minimax-health-title"><div><small class="section-label">01 / HEALTH CHECK</small><h2 id="minimax-health-title">健康探测</h2><p>发送缺少 <code>prompt</code> 的校验请求。预期 HTTP 400，不创建视频任务。</p><p id="minimax-health-status" role="status" aria-live="polite">尚未检查。</p></div><button id="check-minimax" class="primary">开始探测</button></section>
+<section class="panel setup-kit" aria-labelledby="minimax-setup-title"><small class="section-label">02 / LOCAL SETUP</small><h2 id="minimax-setup-title">接入本地工具</h2><p>复制提示词，粘贴给本地 Codex、Claude 或 IDE agent 完成配置。</p><button id="copy-setup-minimax" class="primary">复制配置提示词</button><p id="minimax-setup-status" class="hint" role="status"></p></section>
+</div>
+<div class="model-section"><small class="section-label">03 / PLAYGROUND</small><h2>MiniMax H3 · 声画生成</h2><p class="hint">浏览器不能强制 HTTP/1.1；生成失败时，请复制 curl 在本地运行。</p><div class="workspace">
+<section class="panel"><div class="title"><h2>生成视频</h2><button id="reset">恢复示例</button></div><form id="h3-form"><label>提示词<textarea name="prompt" maxlength="20000" rows="6" required></textarea></label><div class="grid"><label>宽度<input name="width" type="number" min="64" max="4096" required></label><label>高度<input name="height" type="number" min="64" max="4096" required></label><label>比例<input name="aspect_ratio" required></label><label>帧率<input name="fps" type="number" min="1" max="120" required></label><label>随机种子<input name="seed" type="number" min="-1" max="2147483647" required></label><label>时长 / 秒<input name="duration" type="number" min="0.1" max="60" step="0.1" required></label></div><details><summary>高级生成参数</summary><div class="grid"><label>采样步数<input name="num_inference_steps" type="number" min="1" max="200" required></label><label>Flow shift<input name="flow_shift" type="number" min="0" max="100" step="any" required></label></div><label>extra_params<textarea name="extra_params" rows="5" required></textarea></label></details><p class="hint">同步请求最长等待 20 分钟；刷新或关闭页面会中断本页等待，无法恢复运行连接。取消不保证上游停止生成或计费。</p><button id="generate" class="primary">生成视频</button><button type="button" id="cancel" hidden>取消等待</button><p id="h3-status" role="status">准备就绪；点击后可能消耗站点额度。</p></form></section>
+
+<section class="panel"><h2>结果与浏览器历史</h2><div id="result"><p class="placeholder">生成完成后，可在此预览和下载视频。</p></div><div class="title"><h3>最近任务</h3><button id="clear-history">清空历史</button></div><div id="history"></div><p class="hint">仅当前浏览器保存最近 10 条历史。视频缓存受 localStorage 容量限制，请及时下载。无跨设备同步。</p></section>
+</div>
+<section class="panel request"><div class="title"><h2>请求预览</h2><button id="copy">复制 curl</button></div><pre id="command"></pre><p class="hint">示例用于终端参考；本站由浏览器直接使用 fetch 发送 multipart，浏览器不运行 curl。终端需自行设置 H3_API_KEY；curl 强制 HTTP/1.1，浏览器无法控制此项。</p></section>
+</div>
+</section>
+
+<section id="kimi" role="tabpanel" aria-labelledby="tab-kimi" hidden>
+<div class="quickstart" aria-label="Kimi K3.1 Pro 快速开始">
+<section class="panel health" aria-labelledby="kimi-health-title"><div><small class="section-label">01 / HEALTH CHECK</small><h2 id="kimi-health-title">健康探测</h2><p>发送最小对话请求，确认模型可用。可能消耗少量额度。</p><p id="kimi-health-status" role="status" aria-live="polite">尚未检查。</p></div><button id="check-kimi" class="primary">开始探测</button></section>
+<section class="panel setup-kit" aria-labelledby="kimi-setup-title"><small class="section-label">02 / LOCAL SETUP</small><h2 id="kimi-setup-title">接入本地工具</h2><p>复制提示词，粘贴给本地 Codex、Claude 或 IDE agent 完成配置。</p><button id="copy-setup-kimi" class="primary">复制配置提示词</button><p id="kimi-setup-status" class="hint" role="status"></p></section>
+</div>
+
+<section class="model-section"><small class="section-label">03 / PLAYGROUND</small><h2>Kimi K3.1 Pro · 对话</h2><div class="workspace">
+<section class="panel"><h2>发送消息</h2><form id="kimi-form"><label>提示词<textarea id="kimi-prompt" rows="7" maxlength="20000" required></textarea></label><label>最大输出 Tokens<input id="kimi-tokens" type="number" min="1" max="4096" value="256" required></label><p class="hint">使用 OpenAI-compatible Chat Completions，单轮非流式对话，最多等待 50 秒。点击发送可能消耗额度。</p><button id="send-kimi" class="primary">发送消息</button><button id="cancel-kimi" type="button" hidden>取消等待</button><p id="kimi-status" role="status">准备就绪。</p></form></section>
+
+<section class="panel"><h2>回复与最近结果</h2><pre id="kimi-result" class="chat-result">尚无对话结果。</pre><button id="clear-kimi">清空最近结果</button><p class="hint">输入与最近一次回复仅保存在当前浏览器；不会自动重发。</p></section>
+</div></section>
+
+</section>
+
+<dialog id="config"><form method="dialog"><div class="title"><h2>接入配置</h2><button aria-label="关闭配置">关闭</button></div></form><p>店内接入信息已预填。请连接店内 WiFi；离开店内网络可能无法访问 API。以下地址固定为可信 HTTPS 上游。</p><label>MiniMax H3 Endpoint<input readonly value="https://token.agi.bar/minimax-h3/head/v1/videos/sync"></label><label>Kimi 通用 Base URL<input readonly value="https://token.agi.bar/v1"></label><label>Kimi 模型<input readonly value="k3.1-pro"></label><label>API key · 两个模型共用<input id="api-key" type="password" autocomplete="off" spellcheck="false"></label><button id="show-key" type="button">显示密钥</button><label>认证方式<input readonly value="Authorization: Bearer <API key>"></label><p class="hint">密钥与配置仅保存在当前浏览器。预填店内 key 是面向访客公开的接入信息，浏览器源码与请求中可见；请勿填入私人密钥。H3 参数位于 MINIMAX 页签。请求由你的浏览器直连上游，数据不会经过本站服务器。</p><button id="save-config" class="primary">保存浏览器配置</button><p id="storage-warning" role="status"></p></dialog>
+
+</main>
+<footer><span>AGIBAR · PUBLIC PLAYGROUND · 开发者：东海</span><span>本服务仅限店内网络使用 · 数据保存在当前访客浏览器</span></footer>
+</body></html>

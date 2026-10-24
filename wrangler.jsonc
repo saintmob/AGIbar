@@ -1,0 +1,11 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "agibar-playground",
+  "compatibility_date": "2026-10-24",
+  "workers_dev": true,
+  "assets": { "directory": "./cloud/public" },
+  "routes": [
+    { "pattern": "agibar.lllllll.uk", "custom_domain": true }
+  ],
+  "observability": { "enabled": false }
+}

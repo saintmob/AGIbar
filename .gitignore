@@ -1,0 +1,10 @@
+node_modules/
+.DS_Store
+.env
+tasks/
+HANDOFF.md
+DNA.md
+ME.md
+.wrangler/
+.dev.vars
+.playwright-cli/
